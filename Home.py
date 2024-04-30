@@ -26,10 +26,14 @@ st.image('sblock.jpeg', caption='Overall System Architecture')
 st.markdown(
 """
 ### Dataset Exploration""")
+@st.cache_data
+def load_data():
+    data = pd.read_csv('data.csv')
+    return data
+data = load_data()
+
 with st.expander(("See Dataset")):
     ### Dataset used for the Project
-
-    data = pd.read_csv('data.csv')
     st.dataframe(data, use_container_width = True)
 
 with st.expander(("About Dataset")):
@@ -81,63 +85,68 @@ st.markdown("""
             For this system, Support Vector Classifier was trained on the data 
             and the following results were obtained
             """) 
+@st.cache_resource
+def load_model():
+    with open('model_pkl' , 'rb') as f:
+        model = pickle.load(f)
+    return model
+model = load_model()
 
-with open('model_pkl' , 'rb') as f:
-    model = pickle.load(f)
+@st.cache_data
+def plot_metrics(model):
+    X_test = pd.read_csv('X_test.csv')
+    y_test = pd.read_csv('y_test.csv')
+    test_x = X_test.values
+    y_pred = model.predict(test_x)
+    y_scores = model.predict_proba(test_x)
 
-X_test = pd.read_csv('X_test.csv')
-y_test = pd.read_csv('y_test.csv')
-test_x = X_test.values
-y_pred = model.predict(test_x)
-y_scores = model.predict_proba(test_x)
+    fpr, tpr, _ = roc_curve(y_test, y_scores[:,1])
+    roc_auc = auc(fpr, tpr)
+    cm = confusion_matrix(y_test,y_pred)
 
-fpr, tpr, _ = roc_curve(y_test, y_scores[:,1])
-roc_auc = auc(fpr, tpr)
-cm = confusion_matrix(y_test,y_pred)
+    # st.subheader("Precision-Recall Curve")
+    fig, ((ax4, ax1), (ax3, ax2)) = plt.subplots(2, 2, figsize=(12, 10))
+    precision, recall, _ = precision_recall_curve(y_test, y_scores[:,1])
+    average_precision = average_precision_score(y_test, y_scores[:,1])
+    # Bar chart for evaluation metrics
+    metrics = ['Accuracy', 'F1-score', 'Precision', 'Recall']
+    values = [1.0, 0.99, 0.99, 0.99]  # Replace with your actual metric values
+    ax4.bar(metrics, values, color=['blue', 'green', 'orange', 'red'])
+    ax4.set_ylim(0, 1)
+    ax4.set_ylabel('Score')
+    ax4.set_title('Evaluation Metrics')
 
-# st.subheader("Precision-Recall Curve")
-fig, ((ax4, ax1), (ax3, ax2)) = plt.subplots(2, 2, figsize=(12, 10))
-precision, recall, _ = precision_recall_curve(y_test, y_scores[:,1])
-average_precision = average_precision_score(y_test, y_scores[:,1])
-# Bar chart for evaluation metrics
-metrics = ['Accuracy', 'F1-score', 'Precision', 'Recall']
-values = [1.0, 0.99, 0.99, 0.99]  # Replace with your actual metric values
-ax4.bar(metrics, values, color=['blue', 'green', 'orange', 'red'])
-ax4.set_ylim(0, 1)
-ax4.set_ylabel('Score')
-ax4.set_title('Evaluation Metrics')
+    # Confusion matrix
+    sns.heatmap(cm, annot=True, fmt='g', ax=ax1, cmap='Blues')
+    ax1.set_xlabel('Predicted labels')
+    ax1.set_ylabel('True labels')
+    ax1.set_title('Confusion Matrix')
+    ax1.xaxis.set_ticklabels(['Detected', 'Not detected'])
+    ax1.yaxis.set_ticklabels(['Detected', 'Not detected'])
 
-# Confusion matrix
-sns.heatmap(cm, annot=True, fmt='g', ax=ax1, cmap='Blues')
-ax1.set_xlabel('Predicted labels')
-ax1.set_ylabel('True labels')
-ax1.set_title('Confusion Matrix')
-ax1.xaxis.set_ticklabels(['Detected', 'Not detected'])
-ax1.yaxis.set_ticklabels(['Detected', 'Not detected'])
+    # ROC curve
+    ax2.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+    ax2.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    ax2.set_xlim([0.0, 1.0])
+    ax2.set_ylim([0.0, 1.05])
+    ax2.set_xlabel('False Positive Rate')
+    ax2.set_ylabel('True Positive Rate')
+    ax2.set_title('Receiver Operating Characteristic')
+    ax2.legend(loc="lower right")
 
-# ROC curve
-ax2.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
-ax2.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-ax2.set_xlim([0.0, 1.0])
-ax2.set_ylim([0.0, 1.05])
-ax2.set_xlabel('False Positive Rate')
-ax2.set_ylabel('True Positive Rate')
-ax2.set_title('Receiver Operating Characteristic')
-ax2.legend(loc="lower right")
+    # Precision-Recall curve
+    ax3.plot(recall, precision, color='green', lw=2, label=f'AP = {average_precision:.2f}')
+    ax3.set_xlim([0.0, 1.0])
+    ax3.set_ylim([0.0, 1.05])
+    ax3.set_xlabel('Recall')
+    ax3.set_ylabel('Precision')
+    ax3.set_title('Precision-Recall Curve')
+    ax3.legend(loc="lower left")
 
-# Precision-Recall curve
-ax3.plot(recall, precision, color='green', lw=2, label=f'AP = {average_precision:.2f}')
-ax3.set_xlim([0.0, 1.0])
-ax3.set_ylim([0.0, 1.05])
-ax3.set_xlabel('Recall')
-ax3.set_ylabel('Precision')
-ax3.set_title('Precision-Recall Curve')
-ax3.legend(loc="lower left")
-
-fig.subplots_adjust(hspace=0.3)
-st.pyplot(fig)
-# plot_precision_recall_curve(model, x_test, y_test)
-# st.pyplot()
-
+    fig.subplots_adjust(hspace=0.3)
+    st.pyplot(fig)
+    # plot_precision_recall_curve(model, x_test, y_test)
+    # st.pyplot()
+plot_metrics(model)
 time.sleep(3)
 alert.empty()
