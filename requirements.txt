@@ -1,0 +1,7 @@
+streamlit
+pandas
+pickle
+matplotlib
+seaborn
+time
+sklearn

@@ -43,6 +43,7 @@ def main():
         unsafe_allow_html=True
         )
        
+       
         try:
             asyncio.run(draw_async(time_placeholder,loc1,loc2, loc3, alarm1,alarm2,alarm3))
         except Exception as e:
