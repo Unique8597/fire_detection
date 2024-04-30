@@ -1,7 +1,7 @@
 streamlit
 pandas
 pickle
-matplotlib
+matplotlib.pyplot
 seaborn
 time
 sklearn
