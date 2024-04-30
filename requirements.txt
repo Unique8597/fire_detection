@@ -2,5 +2,5 @@ pandas
 joblib
 matplotlib==3.8.4
 seaborn
-sklearn
+scikit-learn
 asyncio
