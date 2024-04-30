@@ -4,6 +4,7 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 import time
+from joblib import load
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, roc_curve, auc, precision_recall_curve, average_precision_score
 
 st.set_page_config(
@@ -87,8 +88,7 @@ st.markdown("""
             """) 
 @st.cache_resource
 def load_model():
-    with open('model_pkl' , 'rb') as f:
-        model = pickle.load(f)
+    model = load('model')
     return model
 model = load_model()
 
