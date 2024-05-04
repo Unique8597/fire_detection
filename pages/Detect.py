@@ -58,16 +58,7 @@ def main():
 
     elif page == "Sensor Status":
         st.subheader("Sensor Status")
-        location_filter = st.selectbox("Filter by Location", ["All"] + sorted(sensor_data["Location"].unique()))
-        status_filter = st.selectbox("Filter by Status", ["All"] + sorted(sensor_data["Status"].unique()))
 
-        filtered_data = sensor_data.copy()
-        if location_filter != "All":
-            filtered_data = filtered_data[filtered_data["Location"] == location_filter]
-        if status_filter != "All":
-            filtered_data = filtered_data[filtered_data["Status"] == status_filter]
-
-        st.dataframe(filtered_data)
 
     elif page == "Alarm Log":
         st.subheader("Alarm Log")
