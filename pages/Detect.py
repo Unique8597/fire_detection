@@ -110,7 +110,6 @@ def main():
             time.sleep(2)
             
             # Clear the output to update the graphs
-        st.experimental_rerun()
 
        
         # try:
