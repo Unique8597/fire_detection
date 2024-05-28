@@ -110,7 +110,7 @@ def main():
             time.sleep(2)
             
             # Clear the output to update the graphs
-
+            st.experimental_rerun()
        
         # try:
         #     asyncio.run(draw_async(time_placeholder,loc1,loc2, loc3, alarm1,alarm2,alarm3))
