@@ -44,23 +44,22 @@ def main():
         with col2:
             st.success("Alarm")
             
-       
-        def generate_data():
-            data = {
-            'Temperature': np.random.uniform(20, 30),
-            'eCO2': np.random.uniform(400, 600),
-            'Pressure': np.random.uniform(1000, 1020),
-            'Raw_H2': np.random.uniform(0.1, 0.2),
-            'NC2.5': np.random.uniform(10, 20),
-            'CNT': np.random.uniform(100, 200),
-            'TVOC': np.random.uniform(200, 300)
-            }
-            return data
-        df = pd.DataFrame(columns=['Temperature', 'eCO2', 'Pressure', 'Raw_H2', 'NC2.5', 'CNT', 'TVOC'])
         data_placeholder = st.empty()
         chart_placeholder = st.empty()
+        df = pd.DataFrame(columns=['Temperature', 'eCO2', 'Pressure', 'Raw_H2', 'NC2.5', 'CNT', 'TVOC'])
         while True:
     # Generate new data
+            def generate_data():
+                data = {
+                'Temperature': np.random.uniform(20, 30),
+                'eCO2': np.random.uniform(400, 600),
+                'Pressure': np.random.uniform(1000, 1020),
+                'Raw_H2': np.random.uniform(0.1, 0.2),
+                'NC2.5': np.random.uniform(10, 20),
+                'CNT': np.random.uniform(100, 200),
+                'TVOC': np.random.uniform(200, 300)
+                }
+                return data
             new_data = pd.DataFrame([generate_data()])
             df = pd.concat([df, new_data], ignore_index=True)
             if len(df) > 100:
@@ -110,7 +109,7 @@ def main():
             time.sleep(2)
             
             # Clear the output to update the graphs
-            st.experimental_rerun()
+            st.rerun()
        
         # try:
         #     asyncio.run(draw_async(time_placeholder,loc1,loc2, loc3, alarm1,alarm2,alarm3))
