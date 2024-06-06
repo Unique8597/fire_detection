@@ -44,22 +44,23 @@ def main():
         with col2:
             st.success("Alarm")
             
+       
+        def generate_data():
+            data = {
+            'Temperature': np.random.uniform(20, 30),
+            'eCO2': np.random.uniform(400, 600),
+            'Pressure': np.random.uniform(1000, 1020),
+            'Raw_H2': np.random.uniform(0.1, 0.2),
+            'NC2.5': np.random.uniform(10, 20),
+            'CNT': np.random.uniform(100, 200),
+            'TVOC': np.random.uniform(200, 300)
+            }
+            return data
+        df = pd.DataFrame(columns=['Temperature', 'eCO2', 'Pressure', 'Raw_H2', 'NC2.5', 'CNT', 'TVOC'])
         data_placeholder = st.empty()
         chart_placeholder = st.empty()
-        df = pd.DataFrame(columns=['Temperature', 'eCO2', 'Pressure', 'Raw_H2', 'NC2.5', 'CNT', 'TVOC'])
         while True:
     # Generate new data
-            def generate_data():
-                data = {
-                'Temperature': np.random.uniform(20, 30),
-                'eCO2': np.random.uniform(400, 600),
-                'Pressure': np.random.uniform(1000, 1020),
-                'Raw_H2': np.random.uniform(0.1, 0.2),
-                'NC2.5': np.random.uniform(10, 20),
-                'CNT': np.random.uniform(100, 200),
-                'TVOC': np.random.uniform(200, 300)
-                }
-                return data
             new_data = pd.DataFrame([generate_data()])
             df = pd.concat([df, new_data], ignore_index=True)
             if len(df) > 100:
@@ -106,10 +107,10 @@ def main():
                 st.plotly_chart(fig, use_container_width=True)
             
             # Wait for a few seconds before updating
-            time.sleep(2)
+            time.sleep(3)
             
             # Clear the output to update the graphs
-            st.rerun()
+        st.experimental_rerun()
        
         # try:
         #     asyncio.run(draw_async(time_placeholder,loc1,loc2, loc3, alarm1,alarm2,alarm3))
@@ -123,6 +124,11 @@ def main():
         
         
     elif page == "Test":
+        @st.cache_resource
+        def load_model():
+            model = load('new_model')
+            return model
+        model = load_model()
     # Layout the app beforehand, with st.empty for the widgets
         st.subheader("Specify Input Parameters")
         col1, col2 = st.columns(2)
@@ -134,7 +140,7 @@ def main():
         with col2:
             CNT = st.slider('CNT', 0, 13, 25000)
             eCO2 = st.slider('eCO2', 400, 60000)
-            Pressure = st.slider('Pressure', 930, 940)
+            Pressure = st.slider('Pressure', 930.0, 939.7)
             
             data = {'Temperature': Temp,
                 'eCO2': eCO2,
@@ -142,33 +148,31 @@ def main():
                 'Raw_H2': Raw_H2,
                 'NC2.5': NC25,
                 'CNT': CNT,
-                'TVOC': TVOC,}
-            df = pd.DataFrame(data, index=[0])
-            st.write("""
+                'TVOC': TVOC}
+        df = pd.DataFrame(data,index=[0])
+        st.write("""
                      ##### User Input Parameters""")
-            st.write(df)
+        st.write(df)
         st.write('---')
-        @st.cache_resource
-        def load_model():
-            model = load('new_model')
-            return model
-        model = load_model()
-        scaler = StandardScaler()
-        transformed = scaler.fit_transform(df)
-        x_scaled = pd.DataFrame(transformed, columns=df.columns)
-        qt = QuantileTransformer(output_distribution='normal')
-        const = 1e-8
-        X= df + const
-        full_pipeline = ColumnTransformer([
-            ('Quantile', qt, x_scaled.columns),
-        ])
-        train_prepared_new = full_pipeline.fit_transform(x_scaled)
-        train_prep = pd.DataFrame(train_prepared_new, columns=x_scaled.columns)
        
-
+        scaler = StandardScaler()
+        x_train = pd.read_csv('data.csv')
+        features = df.columns
+        newdf = x_train[features]
+        scaler.fit(newdf)
+        transformed = scaler.transform(df)
+        x_scaled = pd.DataFrame(transformed, columns=df.columns)
         if st.button('Submit'):
-             y_pred = model.predict(train_prep)
-             st.write(y_pred)
+            y_pred = model.predict(x_scaled)
+            Firstcol, Secondcol = st.columns(2)
+            with Firstcol:
+                st.write(y_pred)
+            with Secondcol:
+                if y_pred==1:
+                    st.error("Fire detected")
+                else:
+                    st.success("No fire detected")
+
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("© 2024 Fire Detection System")
