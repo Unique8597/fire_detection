@@ -29,7 +29,7 @@ st.markdown(
 ### Dataset Exploration""")
 @st.cache_data
 def load_data():
-    data = pd.read_csv('data.csv')
+    data = pd.read_csv('src/data/data.csv')
     return data
 data = load_data()
 
@@ -88,7 +88,7 @@ st.markdown("""
             """) 
 @st.cache_resource
 def load_model():
-    model = load('model')
+    model = load('models/model')
     return model
 model = load_model()
 
