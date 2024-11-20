@@ -94,8 +94,8 @@ model = load_model()
 
 @st.cache_data
 def plot_metrics(_model):
-    X_test = pd.read_csv('X_test.csv')
-    y_test = pd.read_csv('y_test.csv')
+    X_test = pd.read_csv('src/data/X_test.csv')
+    y_test = pd.read_csv('src/data/y_test.csv')
     test_x = X_test.values
     y_pred = model.predict(test_x)
     y_scores = model.predict_proba(test_x)

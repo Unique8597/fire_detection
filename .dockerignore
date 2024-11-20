@@ -1,10 +1,8 @@
 .env/
 experiment/
-src/
 tests/
 .github/
 init_setup.py
-pyproject.toml
 setup.cfg
 template.py
 tox.ini
