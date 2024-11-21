@@ -1,0 +1,17 @@
+pandas
+joblib
+matplotlib
+seaborn
+scikit-learn
+asyncio
+plotly
+streamlit
+
+# dev requirements -
+pytest
+tox
+black
+flake8
+mypy
+
+-e .

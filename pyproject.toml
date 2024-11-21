@@ -8,5 +8,5 @@ testpaths = [
     ]
 
 [tool.mypy]
-mypy_path = ["."]
-ignore_missing_imports = truef
+mypy_path = "."
+ignore_missing_imports = true
